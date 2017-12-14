@@ -12,8 +12,8 @@
 #
 # An example GraphQL query might look like:
 #
-#    {
-#      aws(config: {accessKeyId: "XXXXXXXXXXXXXXXXXXXX", secretAccessKey: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", region: "eu-west-1"}) {
+#    query instances($AWS_DEFAULT_REGION: String, $AWS_ACCESS_KEY_ID: String, $AWS_SECRET_ACCESS_KEY: String) {
+#      aws(config: {accessKeyId: $AWS_ACCESS_KEY_ID, secretAccessKey: $AWS_SECRET_ACCESS_KEY, region: $AWS_DEFAULT_REGION}) {
 #        ec2 {
 #          describeInstances {
 #            Reservations {
@@ -27,7 +27,15 @@
 #        }
 #      }
 #    }
-#
+#    
+# AND set Query Variables as
+#    
+#    {
+#      "AWS_DEFAULT_REGION": "us-east-1",
+#      "AWS_ACCESS_KEY_ID": "XXXXXXXXXXXXXXXXXXXX",
+#      "AWS_SECRET_ACCESS_KEY": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+#    }
+#    
 # Keyboard shortcuts:
 #
 #  Prettify Query:  Shift-Ctrl-P (or press the prettify button above)
