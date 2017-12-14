@@ -7,7 +7,7 @@
 To get familiar with GraphQL, its probably best to start with an interactive web interface:
 
 ```
-docker run -p 4000:4000 lalyos/graphql-aws npm run demo
+docker run -p 4000:4000 lalyos/graphql-aws --demo
 ```
 
 You can play with GraphiQL on [http://localhost:4000](http://localhost:4000). It has autocompletion on **Ctrl-Space**
