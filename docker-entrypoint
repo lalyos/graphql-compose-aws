@@ -1,0 +1,65 @@
+#!/bin/bash
+echo "===> docker-entrypoint ..." 1>&2
+
+set -eo pipefail
+if [[ "$TRACE" ]]; then
+    : ${START_TIME:=$(date +%s)}
+    export START_TIME
+    export PS4='+ [TRACE $BASH_SOURCE:$LINENO][ellapsed: $(( $(date +%s) -  $START_TIME ))] '
+    set -x
+fi
+
+debug() {
+  [[ "$DEBUG" ]] && echo "-----> $*" 1>&2
+}
+
+help() {
+    cat << HELP
+
+You can use the following bash function:
+===
+$(type graphql)
+===
+
+=== Built in graphQL queries:
+
+$(ls -1 *.graphql)
+
+HELP
+}
+
+graphql (){                              
+    docker run -i --rm -e TRACE -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION lalyos/graphql-aws "$@" 
+}
+
+main() {
+  : ${DEBUG:=1}
+  if [ $# -lt 1 ]; then
+      debug "no params, use stdin"
+      exec ./node_modules/.bin/babel-node ./examples/cli/index.js
+  else
+      if [[  $1 == "--help" || $1 == "-h" ]]; then
+	  help
+	  exit 0
+      fi
+
+          
+      if [[  $1 == "--demo" || $1 == "-h" ]]; then
+	  exec npm run demo
+	  exit 0
+      fi 
+
+      debug read params ...
+      local query="${1}"
+      shift
+      if [[ $query == http* ]]; then
+	  curl -Ls -o /tmp/query "${query}"
+      else
+	  cp ${query} /tmp/query
+      fi
+      cat /tmp/query | ./node_modules/.bin/babel-node ./examples/cli/index.js
+  fi
+
+}
+
+[[ "$0" == "$BASH_SOURCE" ]] && main "$@" || true
