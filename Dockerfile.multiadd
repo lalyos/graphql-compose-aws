@@ -1,0 +1,5 @@
+ADD src/ /app/src/
+ADD examples/ /app/examples/
+ADD flow-typed/ /app/flow-typed/
+ADD package*.json /app/
+ADD .babelrc .eslintignore .eslintrc .flowconfig .npmignore /app/
