@@ -7,5 +7,6 @@ WORKDIR /app
 RUN npm install
 
 LABEL io.cmd.description="AWS Cloud API via GraphQL"
+ADD *.graphql /app/
 ADD docker-entrypoint /
 ENTRYPOINT ["/docker-entrypoint"]

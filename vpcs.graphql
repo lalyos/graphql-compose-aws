@@ -1,0 +1,77 @@
+query vpcrelations($vpc_id:String, $AWS_DEFAULT_REGION: String, $AWS_ACCESS_KEY_ID: String, $AWS_SECRET_ACCESS_KEY: String) {
+  aws(config: {accessKeyId: $AWS_ACCESS_KEY_ID, secretAccessKey: $AWS_SECRET_ACCESS_KEY, region: $AWS_DEFAULT_REGION}) {
+    ec2 {
+     describeInstances( input: {Filters:{Name:"vpc-id",Values:[$vpc_id]}}) {
+        Reservations {
+          Instances {
+            InstanceId
+            PublicIpAddress
+            VpcId
+          }
+        }
+      }
+      
+      describeVpcs( input: {Filters:{Name:"vpc-id",Values:[$vpc_id]}}){
+        Vpcs{
+          VpcId
+          IsDefault
+          DhcpOptionsId
+        }
+      }
+      describeSubnets( input: {Filters:{Name:"vpc-id",Values:[$vpc_id]}}) {
+        Subnets{
+          VpcId
+          SubnetId
+          Tags{
+            Key
+            Value
+          }
+        }
+      }
+      describeRouteTables( input: {Filters:{Name:"vpc-id",Values:[$vpc_id]}}){
+        RouteTables{
+          RouteTableId
+          VpcId
+        }
+      }
+      describeInternetGateways( input: {Filters:{Name:"attachment.vpc-id",Values:[$vpc_id]}}){
+        InternetGateways{
+          InternetGatewayId
+          Attachments{
+            VpcId
+          }
+        }
+      }
+      describeNetworkAcls( input: {Filters:{Name:"vpc-id",Values:[$vpc_id]}}){
+        NetworkAcls{
+          NetworkAclId
+        }
+      }
+      describeNetworkInterfaces( input: {Filters:{Name:"vpc-id",Values:[$vpc_id]}}){
+        NetworkInterfaces{
+          NetworkInterfaceId
+        }
+      }
+      describeSecurityGroups( input: {Filters:{Name:"vpc-id",Values:[$vpc_id]}}){
+        SecurityGroups{
+          GroupId
+        }
+      }
+      describeVpnGateways( input: {Filters:{Name:"attachment.vpc-id",Values:[$vpc_id]}}){
+        VpnGateways{
+          VpnGatewayId
+          VpcAttachments{
+            VpcId
+            State
+          }
+        }
+      }
+      describeVpcPeeringConnections{
+        VpcPeeringConnections{
+          VpcPeeringConnectionId
+          
+        }
+      }
+    }
+  }
+}
