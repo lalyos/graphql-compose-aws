@@ -1,4 +1,6 @@
 FROM node:9-alpine
+RUN apk add --no-cache bash
+
 ADD . /app/
 WORKDIR /app
 
