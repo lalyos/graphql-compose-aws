@@ -1,0 +1,53 @@
+{{ $data := json stdin}}
+{{$prefix :="" }}
+query instances($AWS_DEFAULT_REGION: String, $AWS_ACCESS_KEY_ID: String, $AWS_SECRET_ACCESS_KEY: String) {
+  aws(config: {accessKeyId: $AWS_ACCESS_KEY_ID, secretAccessKey: $AWS_SECRET_ACCESS_KEY, region: $AWS_DEFAULT_REGION}) {
+    ec2 {
+      {{range $i, $next :=  $data.data.aws.ec2.describeSubnets.Subnets }}
+      deleteSubnet{{$i}}: deleteSubnet(input:{SubnetId:"{{$prefix}}{{$next.SubnetId}}"})
+      {{- end -}}
+
+      {{range $i, $next :=  $data.data.aws.ec2.describeRouteTables.RouteTables}}
+      {{- if not ($next.Associations | jmespath "[? Main].Main|[0]") -}}
+         {{- range $j, $assoc := $next.Associations }}
+           disassociateRouteTable{{$i}}{{$j}}: disassociateRouteTable(input:{AssociationId: "{{$assoc.RouteTableAssociationId}}"})
+         {{- end }}
+      deleteRouteTable{{$i}}: deleteRouteTable (input:{RouteTableId:"{{$prefix}}{{$next.RouteTableId}}"})
+      {{- end -}}
+      {{- end -}}
+
+      {{range $i, $next :=  $data.data.aws.ec2.describeInternetGateways.InternetGateways}}{{$igwId := $next.InternetGatewayId -}}
+	{{- range $j, $attach := $next.Attachments }}
+      	 detachInternetGateway{{$i}}{{$j}}: detachInternetGateway(input:{InternetGatewayId:"{{$next.InternetGatewayId}}", VpcId:"{{$attach.VpcId}}"})
+	{{- end }}
+      deleteInternetGateway{{$i}}: deleteInternetGateway (input:{InternetGatewayId:"{{$prefix}}{{$igwId}}"})
+      {{- end}}
+
+	
+      {{- range $i, $next :=  $data.data.aws.ec2.describeNetworkAcls.NetworkAcls}}{{$aclid := $next.NetworkAclId -}}
+	{{- range $j, $rule := $next.Entries }}
+         deleteNetworkAclEntry{{$i}}{{$j}}: deleteNetworkAclEntry(input:{NetworkAclId:"{{$aclid}}", RuleNumber:{{$rule.RuleNumber}}, Egress:{{$rule.Egress}}})
+	{{- end}}
+      {{end -}}
+
+      {{range $i, $next :=  $data.data.aws.ec2.describeNetworkAcls.NetworkAcls -}}
+      deleteNetworkAcl{{$i}}: deleteNetworkAcl (input:{NetworkAclId:"{{$prefix}}{{$next.NetworkAclId}}"})
+      {{end -}}
+
+      {{range $i, $next :=  $data.data.aws.ec2.describeNetworkInterfaces.NetworkInterfaces}}
+      deleteNetworkInterface{{$i}}: deleteNetworkInterface (input:{NetworkInterfaceId:"{{$prefix}}{{$next.NetworkInterfaceId}}"})
+      {{end}}
+
+      {{- range $i, $next := $data.data.aws.ec2.describeSecurityGroups.SecurityGroups -}}
+      deleteSecurityGroup{{$i}}: deleteSecurityGroup (input:{GroupId:"{{$prefix}}{{$next.GroupId}}"})
+      {{end -}}
+
+      {{range $i, $next :=  $data.data.aws.ec2.describeVpcs.Vpcs -}}
+      deleteVpc{{$i}}: deleteVpc(input:{VpcId:"{{$prefix}}{{$next.VpcId}}"})
+      {{ end -}}
+
+    }
+  }
+}
+
+
